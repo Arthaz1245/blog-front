@@ -3,6 +3,7 @@ import { baseUrl } from "../utils/services";
 import axios from "axios";
 export const AuthContext = createContext();
 
+// eslint-disable-next-line react/prop-types
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [registerError, setRegisterError] = useState(null);

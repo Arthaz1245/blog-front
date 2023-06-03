@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaRegComment } from "react-icons/fa";
 import { AiOutlineHeart } from "react-icons/ai";
 
+// eslint-disable-next-line react/prop-types
 const Post = ({ id, title, author, date, content, img }) => {
   const truncateText = (text) => {
     let shortText = text.substring(0, 200);
