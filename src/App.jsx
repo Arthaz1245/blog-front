@@ -1,15 +1,16 @@
 import NavBar from "./components/NavBar";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./components/Home";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import CreatePost from "./components/CreatePost";
+import { PostContextProvider } from "./context/PostContext";
 function App() {
   const { user } = useContext(AuthContext);
   return (
-    <>
+    <PostContextProvider>
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -17,7 +18,7 @@ function App() {
         <Route path="/login" element={user ? <Home /> : <Login />} />
         <Route path="/create" element={user ? <CreatePost /> : <Login />} />
       </Routes>
-    </>
+    </PostContextProvider>
   );
 }
 

@@ -49,22 +49,36 @@ const NavBar = () => {
           >
             <span className="pl-4">Donate</span>
           </Link>
-          <Link
-            onClick={handleNav}
-            to="/login"
-            className="w-[75%] flex justify-center items-center rounded-full shadow-lg bg-gray-100 shadow-gray-400 m-2 p-4 hover:bg-[#d72121d3] hover:scale-110 hover:text-white ease-in duration-200"
-            style={{ fontWeight: 800 }}
-          >
-            <span className="pl-4">Login</span>
-          </Link>
-          <Link
-            onClick={handleNav}
-            to="/register"
-            className="w-[75%] flex justify-center items-center rounded-full shadow-lg bg-gray-100 shadow-gray-400 m-2 p-4 hover:bg-[#d72121d3] hover:scale-110 hover:text-white ease-in duration-200"
-            style={{ fontWeight: 800 }}
-          >
-            <span className="pl-4">Register</span>
-          </Link>
+          {user && (
+            <Link
+              onClick={handleNav}
+              to="/create"
+              className="w-[75%] flex justify-center items-center rounded-full shadow-lg bg-gray-100 shadow-gray-400 m-2 p-4 hover:bg-[#d72121d3] hover:scale-110 hover:text-white ease-in duration-200"
+              style={{ fontWeight: 800 }}
+            >
+              Create Post
+            </Link>
+          )}
+          {!user && (
+            <>
+              <Link
+                onClick={handleNav}
+                to="/login"
+                className="w-[75%] flex justify-center items-center rounded-full shadow-lg bg-gray-100 shadow-gray-400 m-2 p-4 hover:bg-[#d72121d3] hover:scale-110 hover:text-white ease-in duration-200"
+                style={{ fontWeight: 800 }}
+              >
+                <span className="pl-4">Login</span>
+              </Link>
+              <Link
+                onClick={handleNav}
+                to="/register"
+                className="w-[75%] flex justify-center items-center rounded-full shadow-lg bg-gray-100 shadow-gray-400 m-2 p-4 hover:bg-[#d72121d3] hover:scale-110 hover:text-white ease-in duration-200"
+                style={{ fontWeight: 800 }}
+              >
+                <span className="pl-4">Register</span>
+              </Link>
+            </>
+          )}
         </div>
       ) : (
         <div></div>
@@ -78,6 +92,9 @@ const NavBar = () => {
                 <span className="">Logged in as {user?.name}</span>
                 <Link className="p-2 sm:p-5 ml-5" to="/">
                   Posts
+                </Link>
+                <Link className="p-2 sm:p-5 ml-5" to="/create">
+                  Create Post
                 </Link>
                 <Link className="p-2 sm:p-5 ml-5" to="/">
                   Writers
@@ -110,6 +127,7 @@ const NavBar = () => {
                 <Link className="p-2 sm:p-5 ml-5" to="/">
                   Posts
                 </Link>
+
                 <Link className="p-2 sm:p-5 ml-5" to="/">
                   Writers
                 </Link>
