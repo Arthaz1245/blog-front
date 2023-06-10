@@ -35,7 +35,8 @@ export const PostContextProvider = ({ children }) => {
       setContent("");
       setCategory([]);
       setImage(null);
-    }
+    },
+    []
   );
   return (
     <PostContext.Provider value={{ createPost, posts }}>

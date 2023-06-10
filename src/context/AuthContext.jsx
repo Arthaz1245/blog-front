@@ -34,10 +34,7 @@ export const AuthContextProvider = ({ children }) => {
       e.preventDefault();
       setIsLoginLoading(true);
       setLoginError(null);
-      const response = await axios.post(
-        `${baseUrl}/users/login`,
-        JSON.stringify(loginInfo)
-      );
+      const response = await axios.post(`${baseUrl}/users/login`, loginInfo);
       setIsLoginLoading(false);
       if (response.error) {
         return setLoginError(response);

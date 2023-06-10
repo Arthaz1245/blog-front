@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 import { AuthContext } from "../context/AuthContext";
@@ -10,7 +9,14 @@ const CreatePost = () => {
   const { createPost } = useContext(PostContext);
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
+  const [category, setCategory] = useState([]);
+  const [title, setTitle] = useState("");
   const [preview, setPreview] = useState(null);
+  const stripHtmlTags = (html) => {
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = html;
+    return tempElement.textContent || tempElement.innerText || "";
+  };
   const TransformFile = (file) => {
     const reader = new FileReader();
     if (file) {
@@ -22,10 +28,38 @@ const CreatePost = () => {
       setPreview("");
     }
   };
+  const strippedContent = stripHtmlTags(content);
+  console.log("image: " + image);
+  const submitPost = (e) => {
+    e.preventDefault();
+
+    createPost(
+      title,
+      user?.name,
+      user?._id,
+      content,
+      category,
+      image,
+      setTitle,
+      setContent,
+      setCategory,
+      setImage
+    );
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     TransformFile(file);
+  };
+  const handleSelectGenres = (e) => {
+    const selectedGenre = e.target.value;
+    if (!category.includes(selectedGenre)) {
+      setCategory((prev) => [...prev, selectedGenre]);
+    }
+  };
+  const handleRemoveGenre = (genre) => {
+    setCategory((prev) => prev.filter((item) => item !== genre));
   };
   return (
     <div className="flex flex-col justify-center items-center h-screen">
@@ -34,6 +68,8 @@ const CreatePost = () => {
           type="text"
           placeholder="title"
           className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          value={title}
+          onChange={(ev) => setTitle(ev.target.value)}
         />
         <label htmlFor="fileInput" className=" p-5">
           <svg
@@ -55,8 +91,38 @@ const CreatePost = () => {
           style={{ display: "none" }}
         />
         <Editor value={content} onChange={setContent} />
+        <select name="" id="" onChange={(e) => handleSelectGenres(e)}>
+          <option disabled={true}>Select a genre</option>
+          <option value="">Art</option>
+          <option value="">Cinema</option>
+          <option value="">Economics</option>
+          <option value="">Entertainment</option>
+          <option value="">Food</option>
+          <option value="">Fashion</option>
+          <option value="">Humor</option>
+          <option value="">Music</option>
+          <option value="">News</option>
+          <option value="">Opinion</option>
+          <option value="">Politics</option>
+          <option value="">Sports</option>
+          <option value="">Videogames</option>
+        </select>
+        <ul>
+          {category.map((genre) => {
+            return (
+              <li key={genre}>
+                <button onClick={() => handleRemoveGenre(genre)}>
+                  x{genre}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
         <div className="flex items-center justify-center my-4">
-          <button className="bg-[#d82020] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <button
+            onClick={submitPost}
+            className="bg-[#d82020] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
             Submit
           </button>
         </div>
