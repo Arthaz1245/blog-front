@@ -8,10 +8,12 @@ const CreatePost = () => {
   const { user } = useContext(AuthContext);
   const { createPost } = useContext(PostContext);
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
-  const [category, setCategory] = useState([]);
+  const [image, setImage] = useState("");
+  const [input, setInput] = useState({
+    categories: [],
+  });
   const [title, setTitle] = useState("");
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState("");
   const stripHtmlTags = (html) => {
     const tempElement = document.createElement("div");
     tempElement.innerHTML = html;
@@ -28,38 +30,44 @@ const CreatePost = () => {
       setPreview("");
     }
   };
+
   const strippedContent = stripHtmlTags(content);
-  console.log("image: " + image);
+  console.log("image: " + input.categories);
+  console.log(preview?.secure_url);
+  console.log(image);
   const submitPost = (e) => {
     e.preventDefault();
-
     createPost(
       title,
       user?.name,
       user?._id,
-      content,
-      category,
+      strippedContent,
+      input.categories,
       image,
       setTitle,
       setContent,
-      setCategory,
-      setImage
+      setInput,
+      setImage,
+      setPreview
     );
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setImage(file);
     TransformFile(file);
+    setImage(file);
   };
-  const handleSelectGenres = (e) => {
-    const selectedGenre = e.target.value;
-    if (!category.includes(selectedGenre)) {
-      setCategory((prev) => [...prev, selectedGenre]);
-    }
+  const handleSelectCategories = (e) => {
+    setInput({
+      ...input,
+      categories: [...new Set([...input.categories, e.target.value])],
+    });
   };
-  const handleRemoveGenre = (genre) => {
-    setCategory((prev) => prev.filter((item) => item !== genre));
+  const handleDelete = (e) => {
+    setInput({
+      ...input,
+      categories: input.categories.filter((category) => category !== e),
+    });
   };
   return (
     <div className="flex flex-col justify-center items-center h-screen">
@@ -90,29 +98,40 @@ const CreatePost = () => {
           onChange={handleImageChange}
           style={{ display: "none" }}
         />
+        {preview && (
+          <img
+            className="m-2"
+            src={preview}
+            alt="chosen"
+            style={{ height: "100px" }}
+          />
+        )}
         <Editor value={content} onChange={setContent} />
-        <select name="" id="" onChange={(e) => handleSelectGenres(e)}>
+        <select name="" id="" onChange={(e) => handleSelectCategories(e)}>
           <option disabled={true}>Select a genre</option>
-          <option value="">Art</option>
-          <option value="">Cinema</option>
-          <option value="">Economics</option>
-          <option value="">Entertainment</option>
-          <option value="">Food</option>
-          <option value="">Fashion</option>
-          <option value="">Humor</option>
-          <option value="">Music</option>
-          <option value="">News</option>
-          <option value="">Opinion</option>
-          <option value="">Politics</option>
-          <option value="">Sports</option>
-          <option value="">Videogames</option>
+          <option value="Art">Art</option>
+          <option value="Cinema">Cinema</option>
+          <option value="Economics">Economics</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Food">Food</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Humor">Humor</option>
+          <option value="Music">Music</option>
+          <option value="News">News</option>
+          <option value="Opinion">Opinion</option>
+          <option value="Politics">Politics</option>
+          <option value="Sports">Sports</option>
+          <option value="Videogames">Videogames</option>
         </select>
         <ul>
-          {category.map((genre) => {
+          {input.categories?.map((genre) => {
             return (
               <li key={genre}>
-                <button onClick={() => handleRemoveGenre(genre)}>
-                  x{genre}
+                <button
+                  className="bg-[#242323] text-white m-2 rounded-sm p-2 flex flex-row"
+                  onClick={() => handleDelete(genre)}
+                >
+                  x {genre}
                 </button>
               </li>
             );

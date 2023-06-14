@@ -3,7 +3,7 @@ import { FaRegComment } from "react-icons/fa";
 import { AiOutlineHeart } from "react-icons/ai";
 
 // eslint-disable-next-line react/prop-types
-const Post = ({ id, title, author, date, content, img }) => {
+const Post = ({ id, title, author, content, image }) => {
   const truncateText = (text) => {
     let shortText = text.substring(0, 200);
     if (text.length > 200) {
@@ -29,7 +29,7 @@ const Post = ({ id, title, author, date, content, img }) => {
         <div className="relative">
           <img
             className="rounded-t-xl w-full h-full object-cover"
-            src={img}
+            src={image}
             alt=""
           />
           <div className="absolute bottom-2 right-2 text-white">
@@ -56,12 +56,15 @@ const Post = ({ id, title, author, date, content, img }) => {
             <h1 className="text-2xl font-bold mb-2">{title}</h1>
             <div className="flex justify-between text-sm mb-2">
               <span>{author}</span>
-              <span>{date}</span>
             </div>
             <p className="mb-4">{truncateText(content)}</p>
           </div>
 
-          <img src={img} alt="" className=" rounded-full w-[100px] h-[100px]" />
+          <img
+            src={image}
+            alt=""
+            className=" rounded-full w-[100px] h-[100px]"
+          />
         </div>
       </div>
     </div>

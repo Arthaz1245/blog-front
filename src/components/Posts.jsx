@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
 import Post from "./Post";
 
 const Posts = ({ currentPosts }) => {
@@ -9,12 +8,11 @@ const Posts = ({ currentPosts }) => {
         currentPosts.map((post) => (
           <div key={post.id} className="rounded-xl border-l-amber-50">
             <Post
-              id={post.id}
+              id={post._id}
               title={post.title}
               author={post.author}
-              date={post.date}
               content={post.content}
-              img={post.img}
+              image={post.image?.secure_url}
             />
           </div>
         ))
