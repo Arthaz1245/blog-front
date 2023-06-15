@@ -10,7 +10,7 @@ import { PostContextProvider } from "./context/PostContext";
 function App() {
   const { user } = useContext(AuthContext);
   return (
-    <PostContextProvider>
+    <PostContextProvider user={user}>
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />

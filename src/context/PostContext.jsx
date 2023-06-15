@@ -5,11 +5,21 @@ import axios from "axios";
 export const PostContext = createContext();
 
 // eslint-disable-next-line react/prop-types
-export const PostContextProvider = ({ children }) => {
+export const PostContextProvider = ({ children, user }) => {
   const [posts, setPosts] = useState([]);
+  const [inputPost, setInputPost] = useState({
+    title: "",
+    author: "",
+    userId: "",
+    content: "",
+    category: [],
+    image: "",
+  });
   const [isPostsLoading, setIsPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState(null);
-
+  const updatePostInfo = useCallback((info) => {
+    setInputPost(info);
+  }, []);
   useEffect(() => {
     const getPosts = async () => {
       setIsPostsLoading(true);
@@ -25,44 +35,40 @@ export const PostContextProvider = ({ children }) => {
 
     getPosts();
   }, []);
-  const createPost = async (
-    title,
-    author,
-    userId,
-    content,
-    category,
-    image,
-    setTitle,
-    setContent,
-    setCategory,
-    setImage,
-    setPreview
-  ) => {
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("author", author);
-    formData.append("userId", userId);
-    formData.append("content", content);
-    formData.append("category", category);
-    formData.append("image", image);
+  const createPost = async (e) => {
     try {
-      console.log(formData);
-      const response = await axios.post(`${baseUrl}/posts`, formData);
+      e.preventDefault;
+      setIsPostsLoading(true);
+      setPostsError(null);
+      // eslint-disable-next-line react/prop-types
+      inputPost.userId = user._id;
+      inputPost.author = user.name;
 
+      const response = await axios.post(`${baseUrl}/posts`, inputPost);
       setPosts((prev) => [...prev, response.data]);
-      setTitle("");
-      setContent("");
-      setCategory([]);
-      setImage("");
-      setPreview("");
+      setInputPost({
+        title: "",
+        author: "",
+        userId: "",
+        content: "",
+        category: [],
+        image: "",
+      });
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating post:", error.message);
     }
   };
 
   return (
     <PostContext.Provider
-      value={{ createPost, posts, isPostsLoading, postsError }}
+      value={{
+        createPost,
+        posts,
+        inputPost,
+        updatePostInfo,
+        isPostsLoading,
+        postsError,
+      }}
     >
       {children}
     </PostContext.Provider>

@@ -6,25 +6,27 @@ import { PostContext } from "../context/PostContext";
 import Editor from "./Editor";
 const CreatePost = () => {
   const { user } = useContext(AuthContext);
-  const { createPost } = useContext(PostContext);
+  const { createPost, inputPost, updatePostInfo } = useContext(PostContext);
   const [content, setContent] = useState("");
   const [image, setImage] = useState("");
-  const [input, setInput] = useState({
-    categories: [],
-  });
-  const [title, setTitle] = useState("");
+
   const [preview, setPreview] = useState("");
   const stripHtmlTags = (html) => {
     const tempElement = document.createElement("div");
     tempElement.innerHTML = html;
     return tempElement.textContent || tempElement.innerText || "";
   };
+
   const TransformFile = (file) => {
     const reader = new FileReader();
     if (file) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setPreview(reader.result);
+        updatePostInfo({
+          ...inputPost,
+          image: reader.result,
+        });
       };
     } else {
       setPreview("");
@@ -32,52 +34,38 @@ const CreatePost = () => {
   };
 
   const strippedContent = stripHtmlTags(content);
-  console.log("image: " + input.categories);
-  console.log(preview?.secure_url);
-  console.log(image);
-  const submitPost = (e) => {
-    e.preventDefault();
-    createPost(
-      title,
-      user?.name,
-      user?._id,
-      strippedContent,
-      input.categories,
-      image,
-      setTitle,
-      setContent,
-      setInput,
-      setImage,
-      setPreview
-    );
-  };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     TransformFile(file);
-    setImage(file);
   };
   const handleSelectCategories = (e) => {
-    setInput({
-      ...input,
-      categories: [...new Set([...input.categories, e.target.value])],
+    updatePostInfo({
+      ...inputPost,
+      categories: [...new Set([...inputPost.categories, e.target.value])],
     });
   };
   const handleDelete = (e) => {
-    setInput({
-      ...input,
-      categories: input.categories.filter((category) => category !== e),
+    updatePostInfo({
+      ...inputPost,
+      categories: inputPost.categories.filter(
+        (category) => category !== e.target.value
+      ),
     });
   };
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <form className=" bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <form
+        onSubmit={createPost}
+        className=" bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+      >
         <input
           type="text"
           placeholder="title"
           className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          value={title}
-          onChange={(ev) => setTitle(ev.target.value)}
+          id="title"
+          onChange={(e) => {
+            updatePostInfo({ ...inputPost, title: e.target.value });
+          }}
         />
         <label htmlFor="fileInput" className=" p-5">
           <svg
@@ -106,7 +94,7 @@ const CreatePost = () => {
             style={{ height: "100px" }}
           />
         )}
-        <Editor value={content} onChange={setContent} />
+        <Editor value={inputPost.content} onChange={setContent} />
         <select name="" id="" onChange={(e) => handleSelectCategories(e)}>
           <option disabled={true}>Select a genre</option>
           <option value="Art">Art</option>
@@ -124,7 +112,7 @@ const CreatePost = () => {
           <option value="Videogames">Videogames</option>
         </select>
         <ul>
-          {input.categories?.map((genre) => {
+          {inputPost.categories?.map((genre) => {
             return (
               <li key={genre}>
                 <button
@@ -138,10 +126,7 @@ const CreatePost = () => {
           })}
         </ul>
         <div className="flex items-center justify-center my-4">
-          <button
-            onClick={submitPost}
-            className="bg-[#d82020] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
+          <button className="bg-[#d82020] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             Submit
           </button>
         </div>
