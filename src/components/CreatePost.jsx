@@ -3,19 +3,16 @@ import "react-quill/dist/quill.snow.css";
 
 import { AuthContext } from "../context/AuthContext";
 import { PostContext } from "../context/PostContext";
-import Editor from "./Editor";
+
 const CreatePost = () => {
   const { user } = useContext(AuthContext);
-  const { createPost, inputPost, updatePostInfo } = useContext(PostContext);
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState("");
+  const [category, setCategory] = useState([]);
+  const [image, setImage] = useState(null);
+  const { createPost } = useContext(PostContext);
 
   const [preview, setPreview] = useState("");
-  const stripHtmlTags = (html) => {
-    const tempElement = document.createElement("div");
-    tempElement.innerHTML = html;
-    return tempElement.textContent || tempElement.innerText || "";
-  };
 
   const TransformFile = (file) => {
     const reader = new FileReader();
@@ -23,39 +20,47 @@ const CreatePost = () => {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setPreview(reader.result);
-        updatePostInfo({
-          ...inputPost,
-          image: reader.result,
-        });
       };
     } else {
       setPreview("");
     }
   };
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+    createPost(
+      title,
+      user,
+      content,
+      category,
+      image,
+      setTitle,
+      setContent,
+      setCategory,
+      setImage,
+      setPreview
+    );
+  };
 
-  const strippedContent = stripHtmlTags(content);
+  // const strippedContent = stripHtmlTags(content);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    console.log(file);
+    setImage(file);
     TransformFile(file);
   };
   const handleSelectCategories = (e) => {
-    updatePostInfo({
-      ...inputPost,
-      categories: [...new Set([...inputPost.categories, e.target.value])],
-    });
+    setCategory([...category, e.target.value]);
   };
+
   const handleDelete = (e) => {
-    updatePostInfo({
-      ...inputPost,
-      categories: inputPost.categories.filter(
-        (category) => category !== e.target.value
-      ),
-    });
+    setCategory(category.filter((c) => c !== e));
   };
+
   return (
     <div className="flex flex-col justify-center items-center h-screen">
       <form
-        onSubmit={createPost}
+        onSubmit={handleCreatePost}
         className=" bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
         <input
@@ -63,9 +68,8 @@ const CreatePost = () => {
           placeholder="title"
           className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="title"
-          onChange={(e) => {
-            updatePostInfo({ ...inputPost, title: e.target.value });
-          }}
+          onChange={(e) => setTitle(e.target.value)}
+          value={title}
         />
         <label htmlFor="fileInput" className=" p-5">
           <svg
@@ -94,7 +98,16 @@ const CreatePost = () => {
             style={{ height: "100px" }}
           />
         )}
-        <Editor value={inputPost.content} onChange={setContent} />
+        {/* <Editor value={content} onChange={setContent} /> */}
+        <textarea
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+          className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          onChange={(e) => setContent(e.target.value)}
+          value={content}
+        />
         <select name="" id="" onChange={(e) => handleSelectCategories(e)}>
           <option disabled={true}>Select a genre</option>
           <option value="Art">Art</option>
@@ -112,7 +125,7 @@ const CreatePost = () => {
           <option value="Videogames">Videogames</option>
         </select>
         <ul>
-          {inputPost.categories?.map((genre) => {
+          {category?.map((genre) => {
             return (
               <li key={genre}>
                 <button

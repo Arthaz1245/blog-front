@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { createContext, useCallback, useState, useEffect } from "react";
 import { baseUrl } from "../utils/services";
 import axios from "axios";
@@ -7,19 +8,10 @@ export const PostContext = createContext();
 // eslint-disable-next-line react/prop-types
 export const PostContextProvider = ({ children, user }) => {
   const [posts, setPosts] = useState([]);
-  const [inputPost, setInputPost] = useState({
-    title: "",
-    author: "",
-    userId: "",
-    content: "",
-    category: [],
-    image: "",
-  });
+
   const [isPostsLoading, setIsPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState(null);
-  const updatePostInfo = useCallback((info) => {
-    setInputPost(info);
-  }, []);
+
   useEffect(() => {
     const getPosts = async () => {
       setIsPostsLoading(true);
@@ -35,37 +27,50 @@ export const PostContextProvider = ({ children, user }) => {
 
     getPosts();
   }, []);
-  const createPost = async (e) => {
-    try {
-      e.preventDefault;
+  const createPost = useCallback(
+    async (
+      title,
+      user,
+      content,
+      category,
+      image,
+      setTitle,
+      setContent,
+      setCategory,
+      setImage,
+      setPreview
+    ) => {
       setIsPostsLoading(true);
       setPostsError(null);
-      // eslint-disable-next-line react/prop-types
-      inputPost.userId = user._id;
-      inputPost.author = user.name;
 
-      const response = await axios.post(`${baseUrl}/posts`, inputPost);
+      const formData = new FormData();
+      formData.append("title", title);
+      // eslint-disable-next-line react/prop-types
+      formData.append("author", user.name);
+      formData.append("userId", user?._id);
+      formData.append("content", content);
+      formData.append("category", category);
+      formData.append("image", image);
+
+      const response = await axios.post(`${baseUrl}/posts`, formData);
+      if (response.error) {
+        return setPostsError(response);
+      }
       setPosts((prev) => [...prev, response.data]);
-      setInputPost({
-        title: "",
-        author: "",
-        userId: "",
-        content: "",
-        category: [],
-        image: "",
-      });
-    } catch (error) {
-      console.error("Error creating post:", error.message);
-    }
-  };
+      setTitle("");
+      setContent("");
+      setCategory([]);
+      setImage(null);
+      setPreview(null);
+    },
+    []
+  );
 
   return (
     <PostContext.Provider
       value={{
         createPost,
         posts,
-        inputPost,
-        updatePostInfo,
         isPostsLoading,
         postsError,
       }}

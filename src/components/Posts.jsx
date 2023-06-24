@@ -5,8 +5,8 @@ const Posts = ({ currentPosts }) => {
   return (
     <div>
       {currentPosts.length ? (
-        currentPosts.map((post) => (
-          <div key={post.id} className="rounded-xl border-l-amber-50">
+        currentPosts.map((post, k) => (
+          <div key={k} className="rounded-xl border-l-amber-50">
             <Post
               id={post._id}
               title={post.title}
