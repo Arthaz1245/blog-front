@@ -27,6 +27,7 @@ export const PostContextProvider = ({ children, user }) => {
 
     getPosts();
   }, []);
+
   const createPost = useCallback(
     async (
       title,

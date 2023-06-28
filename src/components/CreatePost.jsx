@@ -3,6 +3,7 @@ import "react-quill/dist/quill.snow.css";
 
 import { AuthContext } from "../context/AuthContext";
 import { PostContext } from "../context/PostContext";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const { user } = useContext(AuthContext);
@@ -11,9 +12,9 @@ const CreatePost = () => {
   const [category, setCategory] = useState([]);
   const [image, setImage] = useState(null);
   const { createPost } = useContext(PostContext);
-
+  const navigate = useNavigate();
   const [preview, setPreview] = useState("");
-
+  const [errors, setErrors] = useState({});
   const TransformFile = (file) => {
     const reader = new FileReader();
     if (file) {
@@ -25,32 +26,67 @@ const CreatePost = () => {
       setPreview("");
     }
   };
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+    setErrors({ ...errors, title: "" });
+  };
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    setErrors({ ...errors, content: "" });
+  };
+
   const handleCreatePost = async (e) => {
+    let validationErrors = {};
     e.preventDefault();
-    createPost(
-      title,
-      user,
-      content,
-      category,
-      image,
-      setTitle,
-      setContent,
-      setCategory,
-      setImage,
-      setPreview
-    );
+    if (!title) {
+      validationErrors.title = "Title is required";
+    }
+
+    if (!content) {
+      validationErrors.content = "Content is required";
+    } else if (content.length < 30) {
+      validationErrors.content = "Content should have at least 30 characters";
+    }
+
+    if (category.length === 0) {
+      validationErrors.category = "Please select at least one category";
+    }
+    if (!image) {
+      validationErrors.image = "Please add an image";
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    } else {
+      createPost(
+        title,
+        user,
+        content,
+        category,
+        image,
+        setTitle,
+        setContent,
+        setCategory,
+        setImage,
+        setPreview
+      );
+
+      navigate("/");
+    }
   };
 
   // const strippedContent = stripHtmlTags(content);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    console.log(file);
     setImage(file);
+    setErrors({ ...errors, image: "" });
     TransformFile(file);
   };
   const handleSelectCategories = (e) => {
     setCategory([...category, e.target.value]);
+    setErrors({ ...errors, category: "" });
   };
 
   const handleDelete = (e) => {
@@ -68,9 +104,12 @@ const CreatePost = () => {
           placeholder="title"
           className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="title"
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
           value={title}
         />
+        {errors.title && (
+          <p className="text-red-500 text-xs italic">{errors.title}</p>
+        )}
         <label htmlFor="fileInput" className=" p-5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -90,6 +129,10 @@ const CreatePost = () => {
           onChange={handleImageChange}
           style={{ display: "none" }}
         />
+        {errors.image && (
+          <p className="text-red-500 text-xs italic">{errors.image}</p>
+        )}
+
         {preview && (
           <img
             className="m-2"
@@ -104,10 +147,15 @@ const CreatePost = () => {
           id=""
           cols="30"
           rows="10"
-          className="  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          onChange={(e) => setContent(e.target.value)}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+            errors.content && "border-red-500"
+          }`}
+          onChange={handleContentChange}
           value={content}
         />
+        {errors.content && (
+          <p className="text-red-500 text-xs italic">{errors.content}</p>
+        )}
         <select name="" id="" onChange={(e) => handleSelectCategories(e)}>
           <option disabled={true}>Select a genre</option>
           <option value="Art">Art</option>
@@ -124,6 +172,9 @@ const CreatePost = () => {
           <option value="Sports">Sports</option>
           <option value="Videogames">Videogames</option>
         </select>
+        {errors.category && (
+          <p className="text-red-500 text-xs italic">{errors.category}</p>
+        )}
         <ul>
           {category?.map((genre) => {
             return (

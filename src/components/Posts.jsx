@@ -11,6 +11,7 @@ const Posts = ({ currentPosts }) => {
               id={post._id}
               title={post.title}
               author={post.author}
+              date={post.createdAt}
               content={post.content}
               image={post.image?.secure_url}
             />
