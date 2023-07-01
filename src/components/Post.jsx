@@ -5,7 +5,7 @@ import moment from "moment/moment";
 import { Link } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-const Post = ({ id, title, author, date, content, image }) => {
+const Post = ({ id, title, author, date, content, image, likes }) => {
   const truncateText = (text) => {
     let shortText = text.substring(0, 200);
     if (text.length > 200) {
@@ -14,11 +14,6 @@ const Post = ({ id, title, author, date, content, image }) => {
     return shortText;
   };
 
-  const [likeCount, setLikeCount] = useState(50);
-
-  const handleLikeClick = () => {
-    setLikeCount(likeCount + 1);
-  };
   const [postCount, setpostCount] = useState(50);
 
   const handlePostCount = () => {
@@ -37,14 +32,11 @@ const Post = ({ id, title, author, date, content, image }) => {
             />
           </Link>
 
-          <div className="absolute bottom-2 right-2 text-white">
-            <button
-              className="bg-red-500 rounded-full p-2 focus:outline-none"
-              onClick={handleLikeClick}
-            >
+          <div className="absolute bottom-2 right-2 text-white bg-[#575353a5] p-2">
+            <div className="bg-red-500 rounded-full p-2 focus:outline-none">
               <AiOutlineHeart />
-            </button>
-            <span className="ml-2">{likeCount}</span>
+            </div>
+            <span className="ml-2">{likes}</span>
           </div>
           <div className="absolute bottom-2 left-2 text-white">
             <button

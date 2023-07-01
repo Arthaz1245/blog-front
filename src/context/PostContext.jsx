@@ -8,7 +8,6 @@ export const PostContext = createContext();
 // eslint-disable-next-line react/prop-types
 export const PostContextProvider = ({ children, user }) => {
   const [posts, setPosts] = useState([]);
-
   const [isPostsLoading, setIsPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState(null);
 

@@ -14,6 +14,7 @@ const Posts = ({ currentPosts }) => {
               date={post.createdAt}
               content={post.content}
               image={post.image?.secure_url}
+              likes={post?.likes.length}
             />
           </div>
         ))
