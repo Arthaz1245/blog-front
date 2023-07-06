@@ -9,8 +9,10 @@ const PostDetails = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [likes, setLikes] = useState(0);
+  const [comments, setComments] = useState([]);
   const [isPostLoading, setIsPostLoading] = useState(false);
   const [postError, setPostError] = useState(null);
+  const [contentPost, setContentPost] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const { user } = useContext(AuthContext);
   useEffect(() => {
@@ -22,6 +24,7 @@ const PostDetails = () => {
       }
       setPost(response.data);
       setLikes(response.data.likes.length);
+      setComments(response.data.comments);
       const included = response.data.likes.includes(user?._id);
       setIsLiked(included);
 
@@ -29,6 +32,25 @@ const PostDetails = () => {
     };
     getPost();
   }, [id, user]);
+  const handleContentChange = (e) => {
+    setContentPost(e.target.value);
+  };
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const payload = {
+        userId: user?._id,
+        postId: post?._id,
+        content: contentPost,
+      };
+      const response = await axios.post(`${baseUrl}/posts/addComment`, payload);
+      setComments((prev) => [...prev, response.data]);
+      setContentPost("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleLikes = async () => {
     const payload = {
       userId: user?._id,
@@ -44,7 +66,7 @@ const PostDetails = () => {
         await axios.put(`${baseUrl}/posts/likePost`, payload);
         setLikes((prevLikes) => prevLikes + 1);
       }
-      // Update the post data and likes count
+
       const updatedPost = { ...post };
       if (included.length) {
         updatedPost.likes = updatedPost.likes.filter((p) => p !== user?._id);
@@ -52,17 +74,16 @@ const PostDetails = () => {
         updatedPost.likes.push(user?._id);
       }
       setPost(updatedPost);
-      // setLikes(updatedPost.likes.length);
+
       setIsLiked(!included.length);
     } catch (error) {
-      // Handle the error here
       console.log(error);
     }
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
-      {isPostLoading ? (
+      {isPostLoading && !postError ? (
         <div>
           <span>Loading...</span>
         </div>
@@ -100,17 +121,56 @@ const PostDetails = () => {
           </div>
           {user ? (
             <div>
-              <button
-                onClick={handleLikes}
-                className={
-                  isLiked
-                    ? "bg-red-500 rounded-full p-2 focus:outline-none"
-                    : "bg-[#fff] rounded-full p-2 focus:outline-none"
-                }
-              >
-                <AiOutlineHeart className="" />
-              </button>
-              <p>{likes}</p>
+              <div className="flex align-center justify-center my-10">
+                <button
+                  onClick={handleLikes}
+                  className={
+                    isLiked
+                      ? "bg-red-500 rounded-full p-2 focus:outline-none"
+                      : "bg-[#fff] rounded-full p-2 focus:outline-none"
+                  }
+                >
+                  <AiOutlineHeart className="" />
+                </button>
+                <p className="mx-4">{likes}</p>
+              </div>
+
+              <div className="py-8">
+                <h1 className="text-[#000] text-4xl font-bold  text-center">
+                  Comments
+                </h1>
+              </div>
+              <div className="my-8 px-10">
+                <form
+                  className="flex items-center"
+                  onSubmit={handleCommentSubmit}
+                >
+                  <input
+                    type="text"
+                    placeholder="Add comment"
+                    className="p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring focus:border-blue-300 w-[50%]"
+                    value={contentPost}
+                    onChange={handleContentChange}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-r-md ml-2 hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                  >
+                    Submit
+                  </button>
+                </form>
+              </div>
+
+              <div className="my-8 px-10">
+                {comments?.map((c, k) => {
+                  return (
+                    <div className="flex flex-col mb-6" key={k}>
+                      <h5 className="text-lg font-semibold">{c.name}</h5>
+                      <p className="text-gray-600">{c.content}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div>
